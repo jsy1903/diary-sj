@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>SJ Daily Diary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f1117;
+    --surface: #161b27;
+    --card: #1e2535;
+    --border: rgba(255,255,255,0.1);
+    --border2: rgba(255,255,255,0.18);
+    --text: #e2dfd0;
+    --muted: #8892a4;
+    --teal: #1D9E75;
+    --teal-l: rgba(29,158,117,0.15);
+    --blue: #3b82f6;
+    --blue-l: rgba(59,130,246,0.15);
+    --amber: #d97706;
+    --amber-l: rgba(217,119,6,0.15);
+    --purp: #7c3aed;
+    --purp-l: rgba(124,58,237,0.15);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  html { background: var(--bg); }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+  }
+
+  /* ── Typography ── */
+  h1 { font-size: 20px; font-weight: 700; }
+  h2 { font-size: 15px; font-weight: 500; }
+  p, span, label { font-size: 13px; }
+
+  /* ── Layout ── */
+  .header {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 16px 10px;
+  }
+  .header-year { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .header-date { font-size: 20px; font-weight: 700; color: var(--text); }
+  .header-week { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  .content { padding: 12px 16px; }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+
+  .sec-title {
+    font-size: 13px; font-weight: 500;
+    padding-left: 10px;
+    margin-bottom: 12px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .row { display: flex; align-items: center; gap: 8px; }
+  .row-between { display: flex; align-items: center; justify-content: space-between; }
+
+  /* ── Inputs ── */
+  input, textarea, select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    padding: 8px 10px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus { border-color: var(--teal); }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+  input[type="date"] { width: auto; }
+  .input-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+
+  /* ── Buttons ── */
+  .btn {
+    border: none; cursor: pointer; font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px; font-weight: 500; border-radius: var(--radius-sm);
+    padding: 8px 14px; transition: opacity 0.2s, transform 0.1s;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary { background: var(--teal); color: #fff; }
+  .btn-outline { background: transparent; border: 1px solid var(--border2); color: var(--muted); }
+  .btn-sm { font-size: 11px; padding: 4px 10px; }
+  .btn-full { width: 100%; justify-content: center; padding: 13px; font-size: 15px; border-radius: var(--radius); }
+  .btn-teal { background: var(--teal); color: #fff; }
+  .btn-blue { background: var(--blue); color: #fff; }
+  .btn-amber { background: var(--amber); color: #fff; }
+  .btn-ghost { background: var(--teal-l); color: var(--teal); border: 1px solid var(--teal); font-size: 12px; padding: 4px 12px; }
+
+  /* ── Check Toggle ── */
+  .chk {
+    width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+    border: 1px solid var(--border2); background: var(--surface);
+    font-size: 13px; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: background 0.2s, border-color 0.2s;
+  }
+  .chk.done { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+  /* ── Progress bar ── */
+  .pbar-wrap { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; flex: 1; }
+  .pbar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+
+  /* ── Pill ── */
+  .pill {
+    font-size: 11px; font-weight: 500; padding: 2px 8px;
+    border-radius: 20px; white-space: nowrap;
+  }
+
+  /* ── Exercise card ── */
+  .ex-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px;
+  }
+
+  /* ── Stats grid ── */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .stat-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px;
+  }
+  .stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .stat-val { font-size: 22px; font-weight: 700; }
+
+  /* ── Week grid ── */
+  .week-grid { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .week-grid td { text-align: center; padding: 5px 2px; }
+  .week-grid .row-label { text-align: left; color: var(--muted); padding-right: 4px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; margin: 0 auto; }
+
+  /* ── Schedule item ── */
+  .sched-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 8px 12px;
+    margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .sched-date { font-size: 11px; color: var(--amber); margin-bottom: 2px; }
+  .sched-text { font-size: 13px; }
+
+  /* ── Bottom Nav ── */
+  .nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex; z-index: 100;
+  }
+  .nav-btn {
+    flex: 1; border: none; background: none; padding: 10px 0 8px;
+    color: var(--muted); font-size: 10px; font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px;
+    border-top: 2px solid transparent; transition: color 0.2s;
+  }
+  .nav-btn.active { color: var(--teal); border-top-color: var(--teal); }
+  .nav-icon { font-size: 16px; line-height: 1; }
+
+  /* ── Save message ── */
+  .save-msg {
+    margin-top: 8px; padding: 10px 12px; font-size: 12px; line-height: 1.5;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--muted); word-break: break-all;
+  }
+  .save-msg a { color: var(--teal); }
+  .save-msg.ok { border-color: var(--teal); }
+  .save-msg.err { border-color: #ef4444; }
+
+  /* ── Misc ── */
+  .divider { height: 1px; background: var(--border); margin: 10px 0; }
+  .empty { text-align: center; color: var(--muted); font-size: 13px; padding: 8px 0 12px; }
+  .setup-banner {
+    background: rgba(217,119,6,0.1); border: 1px solid var(--amber);
+    border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 12px;
+    font-size: 12px; color: var(--amber); line-height: 1.6;
+  }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!--  ⚙️  설정: 아래 URL을 Google Apps Script 배포 URL로 변경하세요    -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<script>
+const SCRIPT_URL = ""; // ← Google Apps Script 웹 앱 URL 붙여넣기
+</script>
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+
+<div id="app"></div>
+
+<script>
+// ── Utilities ──────────────────────────────────────────────────────────
+const DKR = ['일','월','화','수','목','금','토'];
+const now = new Date();
+
+function fmtDate(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function weekStart(d = new Date()) {
+  const dt = new Date(d); dt.setHours(0,0,0,0);
+  const dw = dt.getDay();
+  dt.setDate(dt.getDate() - (dw === 0 ? 6 : dw - 1));
+  return fmtDate(dt);
+}
+const TODAY = fmtDate(now);
+const WK = weekStart(now);
+
+// localStorage wrapper
+const stor = {
+  get(k) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch { return null; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+};
+
+// Defaults
+const newEx = () => ({ id: Math.random().toString(36).slice(2), name: '', weight: '', sets: '', reps: '' });
+const defLog = () => ({ exercises: [], running: { km: '', min: '', sec: '' }, study: { topic: '', min: '' }, reading: { book: '', pages: '' }, memo: '', done: { ex: false, run: false, study: false, read: false } });
+const defWeek = () => ({ goals: { exDays: 5, runKm: 20, studyMin: 300, readPages: 100 }, schedule: [] });
+const defSum = () => ({ study: '', book: '' });
+const defSett = () => ({ curBook: '', scriptUrl: '' });
+
+// State
+let state = {
+  tab: 'today',
+  log: stor.get(`log:${TODAY}`) || defLog(),
+  weekData: stor.get(`week:${WK}`) || defWeek(),
+  summary: stor.get(`summary:${WK}`) || defSum(),
+  settings: stor.get('sj_settings') || defSett(),
+  weekLogs: {},
+  saving: false,
+  saveMsg: '',
+  saveMsgType: '',
+  editingGoals: false,
+};
+
+// If settings has a saved URL, use it
+const savedUrl = state.settings.scriptUrl;
+if (savedUrl && !SCRIPT_URL) window._SCRIPT_URL = savedUrl;
+
+function getScriptUrl() { return SCRIPT_URL || window._SCRIPT_URL || ''; }
+
+// Load week logs
+function loadWeekLogs() {
+  const wl = {};
+  const sd = new Date(WK + 'T00:00:00');
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(sd); d.setDate(sd.getDate() + i);
+    const dk = fmtDate(d);
+    const dl = stor.get(`log:${dk}`);
+    if (dl) wl[dk] = dl;
+  }
+  state.weekLogs = wl;
+}
+loadWeekLogs();
+
+function calcProg(wl) {
+  let exDays = 0, runKm = 0, studyMin = 0, readPages = 0;
+  Object.values(wl).forEach(l => {
+    if ((l.exercises && l.exercises.length > 0) || l.done?.ex) exDays++;
+    runKm += parseFloat(l.running?.km || 0);
+    studyMin += parseFloat(l.study?.min || 0);
+    readPages += parseFloat(l.reading?.pages || 0);
+  });
+  return { exDays, runKm, studyMin, readPages };
+}
+
+function saveLog() {
+  stor.set(`log:${TODAY}`, state.log);
+  state.weekLogs[TODAY] = state.log;
+}
+
+// ── API calls ──────────────────────────────────────────────────────────
+async function apiCall(action, payload) {
+  const url = getScriptUrl();
+  if (!url) {
+    return { ok: false, error: '설정 탭에서 Google Apps Script URL을 입력해주세요' };
+  }
+  try {
+    const r = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ action, payload }),
+    });
+    return await r.json();
+  } catch (e) {
+    return { ok: false, error: e.message };
+  }
+}
+
+async function saveTodayToSheets() {
+  state.saving = true; state.saveMsg = ''; render();
+  const res = await apiCall('saveDaily', {
+    date: TODAY,
+    exercises: state.log.exercises,
+    running: state.log.running,
+    study: state.log.study,
+    reading: state.log.reading,
+    memo: state.log.memo,
+  });
+  state.saving = false;
+  if (res.ok) {
+    state.saveMsg = `✓ ${res.message}${res.url ? ` | <a href="${res.url}" target="_blank">시트 열기 →</a>` : ''}`;
+    state.saveMsgType = 'ok';
+  } else {
+    state.saveMsg = '✗ ' + (res.error || '저장 실패');
+    state.saveMsgType = 'err';
+  }
+  render();
+}
+
+async function saveSummaryToSheets() {
+  const p = calcProg(state.weekLogs);
+  state.saving = true; state.saveMsg = ''; render();
+  const res = await apiCall('saveSummary', {
+    weekStart: WK,
+    stats: p,
+    studyNotes: state.summary.study,
+    bookReview: state.summary.book,
+  });
+  state.saving = false;
+  if (res.ok) {
+    state.saveMsg = `✓ ${res.message}${res.url ? ` | <a href="${res.url}" target="_blank">시트 열기 →</a>` : ''}`;
+    state.saveMsgType = 'ok';
+  } else {
+    state.saveMsg = '✗ ' + (res.error || '저장 실패');
+    state.saveMsgType = 'err';
+  }
+  render();
+}
+
+// ── Render ─────────────────────────────────────────────────────────────
+function render() {
+  const app = document.getElementById('app');
+  app.innerHTML = buildApp();
+  attachEvents();
+}
+
+function buildApp() {
+  return `
+    ${buildHeader()}
+    <div class="content">
+      ${!getScriptUrl() ? '<div class="setup-banner">⚠️ Google Sheets 저장을 사용하려면 <b>설정</b> 탭에서 Apps Script URL을 등록해주세요.</div>' : ''}
+      ${state.tab === 'today'   ? buildToday()   : ''}
+      ${state.tab === 'week'    ? buildWeek()    : ''}
+      ${state.tab === 'summary' ? buildSummary() : ''}
+      ${state.tab === 'settings'? buildSettings(): ''}
+    </div>
+    ${buildNav()}
+  `;
+}
+
+function buildHeader() {
+  const wkDisplay = `${parseInt(WK.slice(5,7))}월 ${parseInt(WK.slice(8))}일 주`;
+  return `
+    <div class="header">
+      <div class="header-year">${now.getFullYear()}년</div>
+      <div class="header-date">${now.getMonth()+1}월 ${now.getDate()}일 (${DKR[now.getDay()]})</div>
+      <div class="header-week">이번주: ${wkDisplay}~</div>
+    </div>
+  `;
+}
+
+function buildNav() {
+  const tabs = [
+    { key: 'today',    label: '오늘',   icon: '◈' },
+    { key: 'week',     label: '이번주', icon: '◎' },
+    { key: 'summary',  label: '주간요약',icon: '◇' },
+    { key: 'settings', label: '설정',   icon: '≡' },
+  ];
+  return `
+    <nav class="nav">
+      ${tabs.map(t => `<button class="nav-btn${state.tab===t.key?' active':''}" data-tab="${t.key}">
+        <span class="nav-icon">${t.icon}</span>${t.label}
+      </button>`).join('')}
+    </nav>
+  `;
+}
+
+// ── TODAY ──────────────────────────────────────────────────────────────
+function buildToday() {
+  const l = state.log;
+  return `
+    <!-- WEIGHT TRAINING -->
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--teal);padding-left:10px;color:var(--teal)">
+        💪 웨이트 트레이닝
+        <button class="btn btn-ghost" id="addEx">+ 추가</button>
+      </div>
+      ${l.exercises.length === 0 ? '<div class="empty">운동을 추가해주세요</div>' : ''}
+      ${l.exercises.map((ex, i) => `
+        <div class="ex-card" data-exid="${ex.id}">
+          <div class="row-between" style="margin-bottom:8px">
+            <span style="font-size:11px;color:var(--muted)">운동 ${i+1}</span>
+            <button class="btn btn-sm btn-outline" data-delex="${ex.id}">삭제</button>
+          </div>
+          <input class="ex-name" data-exid="${ex.id}" placeholder="운동명 (예: 벤치프레스)" value="${esc(ex.name)}" style="margin-bottom:6px">
+          <div class="row">
+            <div style="flex:1"><div class="input-label">무게(kg)</div><input type="number" class="ex-w" data-exid="${ex.id}" placeholder="80" value="${esc(ex.weight)}"></div>
+            <div style="flex:1"><div class="input-label">세트</div><input type="number" class="ex-s" data-exid="${ex.id}" placeholder="3" value="${esc(ex.sets)}"></div>
+            <div style="flex:1"><div class="input-label">횟수</div><input type="number" class="ex-r" data-exid="${ex.id}" placeholder="10" value="${esc(ex.reps)}"></div>
+          </div>
+        </div>
+      `).join('')}
+      <div class="row-between" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+        <span style="font-size:12px;color:var(--muted)">오늘 운동 완료</span>
+        <div class="chk${l.done.ex?' done':''}" data-tog="ex">✓</div>
+      </div>
+    </div>
+
+    <!-- RUNNING -->
+    <div class="card">
+      <div class="sec-title row-between" style="border-left:3px solid var(--blue);padding-left:10px;color:var(--blue)">
+        🏃 달리기
+        <div class="chk${l.done.run?' done':''}" data-tog="run" style="--teal:var(--blue)">✓</div>
+      </div>
+      <div class="row">
+        <div style="flex:1"><div class="input-label">거리(km)</div><input type="number" id="runKm" placeholder="5" value="${esc(l.running.km)}"></div>
+        <div style="flex:1"><div class="input-label">분</div><input type="number" id="runMin" placeholder="30" value="${esc(l.running.min)}"></div>
+        <div style="flex:1"><div class="input-label">초</div><input type="number" id="runSec" placeholder="15" value="${esc(l.running.sec)}"></div>
+      </div>
+    </div>
+
+    <!-- STUDY -->
+    <div class="card">
+      <div class="sec-title row-between" style="border-left:3px solid var(--amber);padding-left:10px;color:var(--amber)">
+        📈 주식 공부
+        <div class="chk${l.done.study?' done':''}" data-tog="study" style="--teal:var(--amber)">✓</div>
+      </div>
+      <div style="margin-bottom:8px"><div class="input-label">공부 주제</div><input id="studyTopic" placeholder="예: PLTR 실적 분석, AMZN 밸류에이션" value="${esc(l.study.topic)}"></div>
+      <div><div class="input-label">공부 시간 (분)</div><input type="number" id="studyMin" placeholder="45" value="${esc(l.study.min)}"></div>
+    </div>
+
+    <!-- READING -->
+    <div class="card">
+      <div class="sec-title row-between" style="border-left:3px solid var(--purp);padding-left:10px;color:var(--purp)">
+        📚 독서
+        <div class="chk${l.done.read?' done':''}" data-tog="read" style="--teal:var(--purp)">✓</div>
+      </div>
+      <div style="margin-bottom:8px"><div class="input-label">책 제목</div><input id="readBook" placeholder="${esc(state.settings.curBook)||'책 제목을 입력하세요'}" value="${esc(l.reading.book)}"></div>
+      <div><div class="input-label">읽은 페이지 수</div><input type="number" id="readPages" placeholder="30" value="${esc(l.reading.pages)}"></div>
+    </div>
+
+    <!-- MEMO -->
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--muted);padding-left:10px;color:var(--muted)">📝 오늘의 메모</div>
+      <textarea id="memo" placeholder="오늘 느낀점, 특이사항, 내일 할일...">${esc(l.memo)}</textarea>
+    </div>
+
+    <button class="btn btn-full btn-teal" id="saveTodayBtn" ${state.saving?'disabled':''}>
+      ${state.saving ? '저장 중...' : '📊 Google Sheets에 저장하기'}
+    </button>
+    ${state.saveMsg ? `<div class="save-msg ${state.saveMsgType}">${state.saveMsg}</div>` : ''}
+  `;
+}
+
+// ── WEEK ───────────────────────────────────────────────────────────────
+function buildWeek() {
+  const prog = calcProg(state.weekLogs);
+  const g = state.weekData.goals;
+
+  const weekDays = [];
+  const sd = new Date(WK + 'T00:00:00');
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(sd); d.setDate(sd.getDate() + i);
+    weekDays.push({ date: fmtDate(d), label: DKR[d.getDay()], day: d.getDate() });
+  }
+
+  const rows = [
+    { key:'ex',    label:'운동',   unit:'일',  actual:prog.exDays,                 goal:g.exDays,   gkey:'exDays',   color:'var(--teal)',  bg:'var(--teal-l)'  },
+    { key:'run',   label:'달리기', unit:'km',  actual:parseFloat(prog.runKm.toFixed(1)), goal:g.runKm, gkey:'runKm', color:'var(--blue)',  bg:'var(--blue-l)'  },
+    { key:'study', label:'공부',   unit:'분',  actual:prog.studyMin,               goal:g.studyMin, gkey:'studyMin', color:'var(--amber)', bg:'var(--amber-l)' },
+    { key:'read',  label:'독서',   unit:'p',   actual:prog.readPages,              goal:g.readPages,gkey:'readPages',color:'var(--purp)',  bg:'var(--purp-l)'  },
+  ];
+
+  const dotDone = (dl, k) => {
+    if (!dl) return false;
+    if (k==='ex')    return (dl.exercises && dl.exercises.length > 0) || dl.done?.ex;
+    if (k==='run')   return parseFloat(dl.running?.km||0) > 0 || dl.done?.run;
+    if (k==='study') return parseFloat(dl.study?.min||0) > 0 || dl.done?.study;
+    return parseFloat(dl.reading?.pages||0) > 0 || dl.done?.read;
+  };
+
+  const sched = state.weekData.schedule || [];
+
+  return `
+    <!-- PROGRESS -->
+    <div class="card">
+      <div class="sec-title row-between" style="border-left:3px solid var(--teal);padding-left:10px;color:var(--teal)">
+        이번주 진도
+        <button class="btn btn-sm btn-outline" id="toggleGoals">${state.editingGoals ? '완료' : '목표 설정'}</button>
+      </div>
+      ${rows.map(r => {
+        const pct = r.goal > 0 ? Math.min(100, Math.round(r.actual / r.goal * 100)) : 0;
+        return `
+          <div style="margin-bottom:14px">
+            <div class="row-between" style="margin-bottom:6px">
+              <span style="font-size:13px;font-weight:500">${r.label}</span>
+              <div class="row" style="gap:8px">
+                ${state.editingGoals ? `<input type="number" class="goal-input" data-gkey="${r.gkey}" value="${r.goal}" style="width:55px;text-align:right;font-size:12px">` : ''}
+                <span style="font-size:11px;color:var(--muted)">${r.actual}${r.unit} / ${r.goal}${r.unit}</span>
+                <span class="pill" style="background:${r.bg};color:${r.color}">${pct}%</span>
+              </div>
+            </div>
+            <div class="pbar-wrap"><div class="pbar-fill" style="width:${pct}%;background:${r.color}"></div></div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <!-- DAILY GRID -->
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--teal);padding-left:10px;color:var(--teal)">요일별 현황</div>
+      <table class="week-grid">
+        <thead><tr>
+          <td style="width:40px"></td>
+          ${weekDays.map(d => `<td style="color:${d.date===TODAY?'var(--teal)':'var(--muted)'};font-weight:${d.date===TODAY?700:400}">
+            <div>${d.label}</div><div style="font-size:10px">${d.day}</div>
+          </td>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${rows.map(r => `<tr>
+            <td class="row-label">${r.label}</td>
+            ${weekDays.map(d => `<td><div class="dot" style="background:${dotDone(state.weekLogs[d.date],r.key)?r.color:'var(--border2)'}"></div></td>`).join('')}
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- SCHEDULE -->
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--amber);padding-left:10px;color:var(--amber)">주요 일정</div>
+      ${sched.length === 0 ? '<div class="empty">등록된 일정이 없습니다</div>' : ''}
+      ${sched.map(ev => `
+        <div class="sched-item">
+          <div>
+            <div class="sched-date">${ev.date.slice(5,7)}월 ${parseInt(ev.date.slice(8))}일 (${DKR[new Date(ev.date+'T00:00:00').getDay()]})</div>
+            <div class="sched-text">${esc(ev.text)}</div>
+          </div>
+          <button class="btn btn-sm btn-outline" data-delev="${ev.id}">삭제</button>
+        </div>
+      `).join('')}
+      <div class="divider"></div>
+      <div class="row" style="gap:6px">
+        <input type="date" id="newEvDate" value="${TODAY}" style="width:130px;font-size:12px">
+        <input id="newEvText" placeholder="일정 내용" style="flex:1">
+        <button class="btn btn-ghost" id="addEvBtn" style="height:36px;padding:0 12px;flex-shrink:0">추가</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── SUMMARY ────────────────────────────────────────────────────────────
+function buildSummary() {
+  const p = calcProg(state.weekLogs);
+  const s = state.summary;
+  const studyTopics = Object.entries(state.weekLogs).filter(([,l]) => l.study?.topic);
+  const books = [...new Set(Object.values(state.weekLogs).filter(l => l.reading?.book).map(l => l.reading.book))];
+
+  return `
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-label">운동</div><div class="stat-val" style="color:var(--teal)">${p.exDays}일</div></div>
+      <div class="stat-card"><div class="stat-label">달리기</div><div class="stat-val" style="color:var(--blue)">${p.runKm.toFixed(1)}km</div></div>
+      <div class="stat-card"><div class="stat-label">공부</div><div class="stat-val" style="color:var(--amber)">${p.studyMin}분</div></div>
+      <div class="stat-card"><div class="stat-label">독서</div><div class="stat-val" style="color:var(--purp)">${p.readPages}p</div></div>
+    </div>
+
+    <!-- STUDY SUMMARY -->
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--amber);padding-left:10px;color:var(--amber)">📊 이번주 공부 정리</div>
+      ${studyTopics.length > 0 ? `
+        <div style="margin-bottom:10px">
+          ${studyTopics.map(([date,l]) => `
+            <div style="font-size:12px;color:var(--muted);margin-bottom:3px">
+              <span style="color:var(--amber)">${date.slice(5,7)}월${parseInt(date.slice(8))}일</span>
+              &nbsp;${esc(l.study.topic)}${l.study.min ? ` (${l.study.min}분)` : ''}
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+      <div class="input-label">핵심 인사이트, 배운 점, 투자 아이디어</div>
+      <textarea id="sumStudy" placeholder="이번주 공부 정리..." style="min-height:110px">${esc(s.study)}</textarea>
+    </div>
+
+    <!-- BOOK REVIEW -->
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--blue);padding-left:10px;color:var(--blue)">📚 독서 감상문</div>
+      ${books.length > 0 ? `
+        <div style="margin-bottom:10px">
+          ${books.map(b => `<span style="font-size:11px;background:var(--blue-l);color:var(--blue);padding:2px 8px;border-radius:20px;display:inline-block;margin-right:6px;margin-bottom:4px">${esc(b)}</span>`).join('')}
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">총 ${p.readPages}페이지</div>
+        </div>
+      ` : ''}
+      <div class="input-label">인상 깊은 내용, 적용할 점, 나만의 생각</div>
+      <textarea id="sumBook" placeholder="독서 감상문..." style="min-height:110px">${esc(s.book)}</textarea>
+    </div>
+
+    <button class="btn btn-full btn-blue" id="saveSumBtn" ${state.saving?'disabled':''}>
+      ${state.saving ? '저장 중...' : '📊 주간 요약 Google Sheets에 저장'}
+    </button>
+    ${state.saveMsg ? `<div class="save-msg ${state.saveMsgType}">${state.saveMsg}</div>` : ''}
+  `;
+}
+
+// ── SETTINGS ───────────────────────────────────────────────────────────
+function buildSettings() {
+  const s = state.settings;
+  const g = state.weekData.goals;
+  return `
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--teal);padding-left:10px;color:var(--teal)">Google Apps Script URL</div>
+      <div class="input-label">저장 후 이 URL은 브라우저에 저장됩니다</div>
+      <input id="scriptUrlInput" placeholder="https://script.google.com/macros/s/..." value="${esc(s.scriptUrl||SCRIPT_URL)}">
+      <button class="btn btn-ghost" id="saveUrlBtn" style="margin-top:8px;width:100%;justify-content:center">URL 저장</button>
+    </div>
+
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--teal);padding-left:10px;color:var(--teal)">현재 읽고 있는 책</div>
+      <input id="curBookInput" placeholder="책 제목 (독서 섹션 기본값)" value="${esc(s.curBook)}">
+    </div>
+
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--amber);padding-left:10px;color:var(--amber)">주간 기본 목표</div>
+      ${[
+        { label:'운동 일수', gkey:'exDays', unit:'일/주' },
+        { label:'달리기',   gkey:'runKm',   unit:'km/주' },
+        { label:'주식 공부',gkey:'studyMin', unit:'분/주' },
+        { label:'독서',     gkey:'readPages',unit:'페이지/주' },
+      ].map(r => `
+        <div class="row-between" style="margin-bottom:10px">
+          <div><span style="font-size:13px">${r.label}</span><span style="font-size:11px;color:var(--muted);margin-left:6px">${r.unit}</span></div>
+          <input type="number" class="goal-input-sett" data-gkey="${r.gkey}" value="${g[r.gkey]}" style="width:70px;text-align:right">
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="card">
+      <div class="sec-title" style="border-left:3px solid var(--muted);padding-left:10px;color:var(--muted)">앱 정보</div>
+      <p style="font-size:12px;color:var(--muted);line-height:1.8">
+        SJ Daily Diary v1.0<br>
+        데이터: 브라우저 localStorage에 자동 저장<br>
+        Google Sheets: Apps Script 웹 앱 경유<br>
+        GitHub: jsy1903.github.io/sj-diary
+      </p>
+    </div>
+  `;
+}
+
+// ── Event Handlers ─────────────────────────────────────────────────────
+function attachEvents() {
+  // Tab nav
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.tab = btn.dataset.tab;
+      state.saveMsg = '';
+      render();
+    });
+  });
+
+  if (state.tab === 'today') {
+    // Add exercise
+    document.getElementById('addEx')?.addEventListener('click', () => {
+      state.log.exercises.push(newEx());
+      saveLog(); render();
+    });
+
+    // Delete exercise
+    document.querySelectorAll('[data-delex]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.log.exercises = state.log.exercises.filter(e => e.id !== btn.dataset.delex);
+        saveLog(); render();
+      });
+    });
+
+    // Exercise name
+    document.querySelectorAll('.ex-name').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const ex = state.log.exercises.find(e => e.id === inp.dataset.exid);
+        if (ex) ex.name = inp.value;
+        saveLog();
+      });
+    });
+    document.querySelectorAll('.ex-w').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const ex = state.log.exercises.find(e => e.id === inp.dataset.exid);
+        if (ex) ex.weight = inp.value; saveLog();
+      });
+    });
+    document.querySelectorAll('.ex-s').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const ex = state.log.exercises.find(e => e.id === inp.dataset.exid);
+        if (ex) ex.sets = inp.value; saveLog();
+      });
+    });
+    document.querySelectorAll('.ex-r').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const ex = state.log.exercises.find(e => e.id === inp.dataset.exid);
+        if (ex) ex.reps = inp.value; saveLog();
+      });
+    });
+
+    // Running
+    document.getElementById('runKm')?.addEventListener('input', e => { state.log.running.km = e.target.value; saveLog(); });
+    document.getElementById('runMin')?.addEventListener('input', e => { state.log.running.min = e.target.value; saveLog(); });
+    document.getElementById('runSec')?.addEventListener('input', e => { state.log.running.sec = e.target.value; saveLog(); });
+
+    // Study
+    document.getElementById('studyTopic')?.addEventListener('input', e => { state.log.study.topic = e.target.value; saveLog(); });
+    document.getElementById('studyMin')?.addEventListener('input', e => { state.log.study.min = e.target.value; saveLog(); });
+
+    // Reading
+    document.getElementById('readBook')?.addEventListener('input', e => { state.log.reading.book = e.target.value; saveLog(); });
+    document.getElementById('readPages')?.addEventListener('input', e => { state.log.reading.pages = e.target.value; saveLog(); });
+
+    // Memo
+    document.getElementById('memo')?.addEventListener('input', e => { state.log.memo = e.target.value; saveLog(); });
+
+    // Done toggles
+    document.querySelectorAll('[data-tog]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const k = btn.dataset.tog;
+        state.log.done[k] = !state.log.done[k];
+        saveLog(); render();
+      });
+    });
+
+    // Save to sheets
+    document.getElementById('saveTodayBtn')?.addEventListener('click', saveTodayToSheets);
+  }
+
+  if (state.tab === 'week') {
+    document.getElementById('toggleGoals')?.addEventListener('click', () => {
+      state.editingGoals = !state.editingGoals; render();
+    });
+    document.querySelectorAll('.goal-input').forEach(inp => {
+      inp.addEventListener('input', () => {
+        state.weekData.goals[inp.dataset.gkey] = parseFloat(inp.value) || 0;
+        stor.set(`week:${WK}`, state.weekData);
+      });
+    });
+    // Schedule add
+    document.getElementById('addEvBtn')?.addEventListener('click', () => {
+      const date = document.getElementById('newEvDate').value;
+      const text = document.getElementById('newEvText').value.trim();
+      if (!text) return;
+      state.weekData.schedule.push({ id: Math.random().toString(36).slice(2), date, text });
+      state.weekData.schedule.sort((a,b) => a.date.localeCompare(b.date));
+      stor.set(`week:${WK}`, state.weekData);
+      render();
+    });
+    // Schedule delete
+    document.querySelectorAll('[data-delev]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.weekData.schedule = state.weekData.schedule.filter(e => e.id !== btn.dataset.delev);
+        stor.set(`week:${WK}`, state.weekData);
+        render();
+      });
+    });
+  }
+
+  if (state.tab === 'summary') {
+    document.getElementById('sumStudy')?.addEventListener('input', e => {
+      state.summary.study = e.target.value;
+      stor.set(`summary:${WK}`, state.summary);
+    });
+    document.getElementById('sumBook')?.addEventListener('input', e => {
+      state.summary.book = e.target.value;
+      stor.set(`summary:${WK}`, state.summary);
+    });
+    document.getElementById('saveSumBtn')?.addEventListener('click', saveSummaryToSheets);
+  }
+
+  if (state.tab === 'settings') {
+    document.getElementById('saveUrlBtn')?.addEventListener('click', () => {
+      const url = document.getElementById('scriptUrlInput').value.trim();
+      state.settings.scriptUrl = url;
+      window._SCRIPT_URL = url;
+      stor.set('sj_settings', state.settings);
+      alert('URL이 저장되었습니다!');
+    });
+    document.getElementById('curBookInput')?.addEventListener('input', e => {
+      state.settings.curBook = e.target.value;
+      stor.set('sj_settings', state.settings);
+    });
+    document.querySelectorAll('.goal-input-sett').forEach(inp => {
+      inp.addEventListener('input', () => {
+        state.weekData.goals[inp.dataset.gkey] = parseFloat(inp.value) || 0;
+        stor.set(`week:${WK}`, state.weekData);
+      });
+    });
+  }
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
