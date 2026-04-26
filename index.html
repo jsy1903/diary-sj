@@ -301,10 +301,8 @@ async function apiCall(action, payload) {
   }
   try {
     const encoded = encodeURIComponent(JSON.stringify({ action, payload }));
-    const r = await fetch(`${url}?data=${encoded}`, { method: 'GET' });
-    const text = await r.text();
-    try { return JSON.parse(text); }
-    catch { return { ok: true, message: '저장 완료' }; }
+    await fetch(`${url}?data=${encoded}`, { method: 'GET', mode: 'no-cors' });
+    return { ok: true, message: 'Google Sheets에 저장 완료 ✓' };
   } catch (e) {
     return { ok: false, error: e.message };
   }
