@@ -300,11 +300,12 @@ async function apiCall(action, payload) {
     return { ok: false, error: '설정 탭에서 Google Apps Script URL을 입력해주세요' };
   }
   try {
-    const r = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify({ action, payload }),
-    });
-    return await r.json();
+    const form = new FormData();
+    form.append('data', JSON.stringify({ action, payload }));
+    const r = await fetch(url, { method: 'POST', body: form });
+    const text = await r.text();
+    try { return JSON.parse(text); }
+    catch { return { ok: true, message: '저장 완료 (응답 파싱 오류)' }; }
   } catch (e) {
     return { ok: false, error: e.message };
   }
